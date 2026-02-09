@@ -1,4 +1,6 @@
 {
   "api_token": "your-api-token-here",
-  "project_code": "YOUR_PROJECT_CODE"
+  "project_code": "YOUR_PROJECT_CODE",
+  "source_field": "preconditions",
+  "destination_field": "Preconditions"
 }
