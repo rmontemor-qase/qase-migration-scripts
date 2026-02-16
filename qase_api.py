@@ -176,3 +176,42 @@ class QaseAPI:
             if hasattr(e, 'response') and e.response is not None:
                 print(f"Response: {e.response.text}")
             return False
+
+    def attach_external_issues(self, external_issue_type: str, links: List[Dict[str, Any]]) -> bool:
+        """
+        Attach external issues (e.g., JIRA) to Qase test cases.
+
+        Args:
+            external_issue_type: Type of external issue (e.g., "jira-cloud", "jira-server")
+            links: List of dicts with structure:
+                   [{"case_id": 123, "external_issues": ["PROJ-456", "PROJ-789"]}, ...]
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        if not links:
+            return True
+
+        try:
+            url = f"{self.base_url}/case/{self.project_code}/external-issue/attach"
+            payload = {
+                "type": external_issue_type,
+                "links": links
+            }
+
+            response = requests.post(url, headers=self.headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+
+            if data and data.get("status"):
+                return True
+            else:
+                error_msg = data.get("error", "Unknown error") if data else "No response"
+                print(f"Failed to attach external issues: {error_msg}")
+                return False
+
+        except requests.exceptions.RequestException as e:
+            print(f"Exception when attaching external issues: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response: {e.response.text}")
+            return False

@@ -6,6 +6,7 @@ Python scripts for migrating and fixing Qase test cases.
 
 - **fix_csv_references.py**: Fixes broken CSV file references in test cases
 - **field_migration.py**: Generic script to migrate content from any system field to any custom field
+- **link_jira_issues.py**: Extracts JIRA issue IDs from test case fields and links them to Qase test cases
 
 ## Installation
 
@@ -119,3 +120,56 @@ The script supports the following system fields (case-insensitive):
 - `preconditions` or `pre-conditions`
 - `description`
 - `postconditions` or `post-conditions`
+
+### Link JIRA Issues
+
+The `link_jira_issues.py` script extracts JIRA issue IDs from test case fields and attaches them as external issues in Qase.
+
+**Usage:**
+
+```bash
+# Dry run to preview what would be linked
+python link_jira_issues.py --dry-run
+
+# Actually link JIRA issues
+python link_jira_issues.py
+
+# Specify JIRA type and batch size
+python link_jira_issues.py --type jira-cloud --batch-size 50
+
+# Verbose mode to see details for each case
+python link_jira_issues.py --verbose
+```
+
+**Configuration:**
+
+The script can use configuration from `config.json`:
+
+```json
+{
+  "api_token": "your-qase-api-token",
+  "project_code": "YOUR_PROJECT_CODE",
+  "tests": {
+    "external_issues": {
+      "enable": true,
+      "type": "jira-cloud",
+      "batch_size": 50
+    }
+  }
+}
+```
+
+**How it works:**
+
+1. Fetches all test cases from the specified Qase project
+2. Extracts JIRA issue IDs (pattern: `PROJECT-123`) from the **refs** field only
+3. Attaches JIRA issues to test cases in batches using the Qase External Issues API
+
+**Command-line Options:**
+
+- `--type`: JIRA instance type (`jira-cloud` or `jira-server`, default: `jira-cloud`)
+- `--batch-size`: Number of cases per batch (default: 50)
+- `--dry-run`: Preview changes without making API calls
+- `--verbose`: Show detailed information about each test case
+
+For more details, see `JIRA_EXTERNAL_ISSUES_BREAKDOWN.md`.
